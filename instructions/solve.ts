@@ -8,7 +8,7 @@ const solve = async (page: Page) => {
     });
 
     // Load all data from database
-    const data = await read('../database/wordlist.ts');
+    const data = await read('../database/wordlist.json');
 
     // Filter data to find a matching entry
     let matchingEntry = data.find((DbEntry) => DbEntry.word_pl === refVal);

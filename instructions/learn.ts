@@ -11,8 +11,10 @@ const learn = async (page: Page) => {
     });
 
     // Get the new word (PL)
-    let newWordPL = await page.$eval('#learning-container p', (element) => {
-        return element.textContent;
+    let newWordPL = await page.$$eval('#learning-container p', (element) => {
+        // return element.textContent;
+        // There are 2 "p" tags in '#learning-container", the latter one has the word in it
+        return element[1].textContent;
     });
 
     // Change default value if it is not found
