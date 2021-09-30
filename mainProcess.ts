@@ -8,7 +8,7 @@ const mainProcess = async (page: Page) => {
 
         if (!regexArray) {
             throw new Error(
-                '\x1b[41m\x1b[37m❌ Could not get the answer\x1b[0m'
+                '\x1b[41m\x1b[37m❌ Failed to get the answer\x1b[0m'
             );
         }
 

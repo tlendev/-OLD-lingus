@@ -8,7 +8,7 @@ const bootstrap = async () => {
     try {
         if (!process.env.USRNAME || !process.env.PASS) {
             throw new Error(
-                "\x1b[41m\x1b[37m❌ Error: you must provide your login and password. Create a new file in the root directory called '.env' and add the following text to it:\nUSRNAME=YOUR USERNAME\nPASS=YOUR PASSWORD"
+                "\x1b[31m\n❌ You must provide your login and password. Create a new file in the root directory called '.env' and add the following text to it:\nUSRNAME=YOUR USERNAME\nPASS=YOUR PASSWORD"
             );
         }
 
@@ -22,6 +22,7 @@ const bootstrap = async () => {
         await Promise.all([
             page.waitForNavigation(),
             page.goto('https://lingos.pl/students/learning/0'),
+            page.waitForNavigation(),
         ]);
 
         await mainProcess(page);
