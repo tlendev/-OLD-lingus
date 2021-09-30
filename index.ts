@@ -5,18 +5,35 @@ import { mainProcess } from './mainProcess';
 import puppeteer from 'puppeteer';
 
 const bootstrap = async () => {
-    const browser: Browser = await puppeteer.launch({ headless: false });
-    const page: Page = await browser.newPage();
+    try {
+        if (!process.env.USRNAME || !process.env.PASS) {
+            throw new Error(
+                "\x1b[41m\x1b[37m❌ Error: you must provide your login and password. Create a new file in the root directory called '.env' and add the following text to it:\nUSRNAME=YOUR USERNAME\nPASS=YOUR PASSWORD"
+            );
+        }
 
-    // Login
-    await login(page);
+        const browser: Browser = await puppeteer.launch({ headless: true });
+        const page: Page = await browser.newPage();
 
-    // Navigate to lessons
-    await page.goto('https://lingos.pl/students/learning');
+        // Login
+        await login(page);
 
-    await mainProcess(page);
+        // Navigate to lessons
+        await Promise.all([
+            page.waitForNavigation(),
+            page.goto('https://lingos.pl/students/learning/0'),
+        ]);
 
-    // await browser.close();
+        await mainProcess(page);
+
+        console.log(
+            '\x1b[33m 🏆 Section finished succesfully. Exiting the process with code 1.'
+        );
+
+        await browser.close();
+    } catch (error: any) {
+        throw new Error(error);
+    }
 };
 
 bootstrap();
