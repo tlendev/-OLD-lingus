@@ -28,7 +28,7 @@ const bootstrap = async () => {
         await mainProcess(page);
 
         console.log(
-            '\x1b[33m 🏆 Section finished succesfully. Exiting the process with code 1.'
+            '\x1b[33m 🏆 Section finished succesfully. Exiting the process with code 0.'
         );
 
         await browser.close();
