@@ -1,4 +1,3 @@
 {
-    "verbose": true,
-    "ignore": ["wordlist.json"]
+    "verbose": true
 }
