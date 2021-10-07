@@ -2,46 +2,46 @@ import { Page } from 'puppeteer';
 
 const mainProcess = async (page: Page) => {
     try {
-        const regexArray = await page.$$eval('script', (elements) => {
-            return elements[7].textContent?.match(/(?=let foo = ").+(?<=";)/);
+        if (page.url() === 'https://lingos.pl/students/start/finished,true') {
+            return;
+        }
+        // On the lingos page there is always a script tag with index of 7 that holds a variable with the answer to the current question. The code below extracts this answer through a regex
+        const answer: string | undefined = await page.evaluate(() => {
+            const scriptTags: NodeListOf<HTMLScriptElement> =
+                document.querySelectorAll('script');
+            if (scriptTags[7]) {
+                return scriptTags[7].textContent
+                    ?.match(/(?=let foo = ").+(?<=";)/)![0]
+                    .slice(11);
+            }
         });
 
-        if (!regexArray) {
-            throw new Error(
-                '\x1b[41m\x1b[37m❌ Failed to get the answer\x1b[0m'
-            );
-        }
-
-        const answer = regexArray[0].slice(11);
-
-        await page.type('[name="answer"]', answer);
-
-        await Promise.all([
-            page.click('.btn.new-btn-green.mx-auto'),
-            page.waitForNavigation(),
-        ]);
-
-        let url = page.url();
-
-        // skip in learn mode
-        if (url === 'https://lingos.pl/students/checkAnswer/0,0') {
+        if (answer) {
+            await page.type('[name="answer"]', answer);
             await Promise.all([
                 page.click('.btn.new-btn-green.mx-auto'),
                 page.waitForNavigation(),
             ]);
+            // This block should only run in answer mode as in that mode there is an extra button that has to be clicked
+            if (page.url() === 'https://lingos.pl/students/checkAnswer/0,0') {
+                await Promise.all([
+                    page.click('.btn.new-btn-green.mx-auto'),
+                    page.waitForNavigation(),
+                ]);
+            }
+            console.log('\x1b[32m✔ Clean run. Found no errors');
+        } else {
+            console.error('\x1b[31m❌ Failed to get the answer, retrying');
         }
 
-        console.log('\x1b[32m✔ Clean run. Found no errors');
-
-        // Rrecursion
-        url = page.url();
-
+        // Call the main process again if there are still questions to solve. When all questions are solved the url will change to a starting one thus ending the loop and a set of questions
         if (
-            url === 'https://lingos.pl/students/learning/0' ||
+            page.url() === 'https://lingos.pl/students/learning/0' ||
             'https://lingos.pl/students/learning/0,0'
         ) {
             await mainProcess(page);
         }
+        return;
     } catch (error: any) {
         throw new Error(error);
     }

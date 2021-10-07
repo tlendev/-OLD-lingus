@@ -12,7 +12,7 @@ const bootstrap = async () => {
             );
         }
 
-        const browser: Browser = await puppeteer.launch({ headless: true });
+        const browser: Browser = await puppeteer.launch({ headless: false });
         const page: Page = await browser.newPage();
 
         // Login
@@ -28,7 +28,7 @@ const bootstrap = async () => {
         await mainProcess(page);
 
         console.log(
-            '\x1b[33m 🏆 Section finished succesfully. Exiting the process with code 0.'
+            '\n\x1b[33m 🏆 Section finished succesfully. Exiting the process with code 0.'
         );
 
         await browser.close();
