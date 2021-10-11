@@ -1,5 +1,7 @@
 import { Page } from 'puppeteer';
 
+let retryAttempt = 0;
+
 const mainProcess = async (page: Page) => {
     try {
         if (page.url() === 'https://lingos.pl/students/start/finished,true') {
@@ -31,7 +33,12 @@ const mainProcess = async (page: Page) => {
             }
             console.log('\x1b[32m✔ Clean run. Found no errors');
         } else {
-            console.error('\x1b[31m❌ Failed to get the answer, retrying');
+            console.error(
+                `\x1b[31m❌ Failed to get the answer, retrying [${
+                    retryAttempt + 1
+                }/20]`
+            );
+            retryAttempt++;
         }
 
         // Call the main process again if there are still questions to solve. When all questions are solved the url will change to a starting one thus ending the loop and a set of questions
@@ -39,6 +46,11 @@ const mainProcess = async (page: Page) => {
             page.url() === 'https://lingos.pl/students/learning/0' ||
             'https://lingos.pl/students/learning/0,0'
         ) {
+            if (retryAttempt === 20) {
+                throw new Error(
+                    '\x1b[31m❌ Exceeded maximum retry attempts. Exiting...'
+                );
+            }
             await mainProcess(page);
         }
         return;

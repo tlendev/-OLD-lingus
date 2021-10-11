@@ -6,6 +6,8 @@ import puppeteer from 'puppeteer';
 
 const bootstrap = async () => {
     try {
+        const startingDate = Date.now();
+
         if (!process.env.USRNAME || !process.env.PASS) {
             throw new Error(
                 "\x1b[31m\n❌ You must provide your login and password. Create a new file in the root directory called '.env' and add the following text to it:\nUSRNAME=YOUR USERNAME\nPASS=YOUR PASSWORD"
@@ -28,7 +30,9 @@ const bootstrap = async () => {
         await mainProcess(page);
 
         console.log(
-            '\n\x1b[33m 🏆 Section finished succesfully. Exiting the process with code 0.'
+            `\n\x1b[33m 🏆 Section finished succesfully in ${new Date(
+                Date.now() - startingDate
+            ).getSeconds()}s. Exiting the process with code 0.`
         );
 
         await browser.close();
