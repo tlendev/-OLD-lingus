@@ -20,14 +20,30 @@ const bootstrap = async () => {
         // Login
         await login(page);
 
-        // Navigate to lessons
         await Promise.all([
             page.waitForNavigation(),
-            page.goto('https://lingos.pl/students/learning/0'),
+            page.goto('https://lingos.pl/students/start'),
             page.waitForNavigation(),
         ]);
 
-        await mainProcess(page);
+        let progressToday = await page.evaluate(() => {
+            const text = document.querySelectorAll('h3.my-auto.fw-bold');
+            if (text) {
+                return text[1].textContent?.trim();
+            }
+        });
+
+        if (!progressToday) {
+            throw new Error('Could not get execution context');
+        }
+
+        for (let i = parseInt(progressToday); i < 5; i++) {
+            console.log(`🤞 Round ${i + 1}`);
+            await Promise.all([
+                page.waitForNavigation(),
+                await mainProcess(page),
+            ]);
+        }
 
         console.log(
             `\n\x1b[33m 🏆 Section finished succesfully in ${new Date(

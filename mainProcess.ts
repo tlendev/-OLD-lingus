@@ -4,9 +4,12 @@ let retryAttempt = 0;
 
 const mainProcess = async (page: Page) => {
     try {
-        if (page.url() === 'https://lingos.pl/students/start/finished,true') {
-            return;
-        }
+        // Navigate to lessons
+        await Promise.all([
+            page.waitForNavigation(),
+            page.goto('https://lingos.pl/students/learning/0'),
+            page.waitForNavigation(),
+        ]);
         // On the lingos page there is always a script tag with index of 7 that holds a variable with the answer to the current question. The code below extracts this answer through a regex
         const answer: string | undefined = await page.evaluate(() => {
             const scriptTags: NodeListOf<HTMLScriptElement> =
@@ -14,7 +17,10 @@ const mainProcess = async (page: Page) => {
             if (scriptTags[7]) {
                 return scriptTags[7].textContent
                     ?.match(/(?=let foo = ").+(?<=";)/)![0]
-                    .slice(11);
+                    .slice(11)
+                    .replace('\t', '')
+                    .replace('"', '')
+                    .replace(';', '');
             }
         });
 
@@ -32,6 +38,11 @@ const mainProcess = async (page: Page) => {
                 ]);
             }
             console.log('\x1b[32m✔ Clean run. Found no errors');
+            if (
+                page.url() === 'https://lingos.pl/students/start/finished,true'
+            ) {
+                return;
+            }
         } else {
             console.error(
                 `\x1b[31m❌ Failed to get the answer, retrying [${
